@@ -1,8 +1,21 @@
-/.gradle
-/build
-/run
-/out
-*.iml
+# eclipse
+bin
+.classpath
+.project
+
+# idea
+out
 *.ipr
 *.iws
-/src/main/resources/META-INF/nei_at.cfg
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+runclient
+libs/*

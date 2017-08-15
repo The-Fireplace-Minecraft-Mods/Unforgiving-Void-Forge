@@ -25,7 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.io.File;
 import java.util.Random;
 
-@Mod(modid = LessForgivingVoid.MOD_ID, name = "Less Forgiving Void", acceptedMinecraftVersions = "[1.10.2,)", acceptableRemoteVersions = "*", dependencies = "after:forgivingvoid")
+@Mod(modid = LessForgivingVoid.MOD_ID, name = "Less Forgiving Void", acceptedMinecraftVersions = "[1.10.2,)", acceptableRemoteVersions = "*", dependencies = "after:forgivingvoid", updateJSON = "https://bitbucket.org/The_Fireplace/minecraft-mod-updates/raw/master/lfv.json")
 @Mod.EventBusSubscriber
 public class LessForgivingVoid {
 
