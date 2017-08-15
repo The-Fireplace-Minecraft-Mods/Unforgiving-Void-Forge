@@ -1,14 +1,14 @@
 [
 {
   "modid": "forgivingvoid",
-  "name": "Forgiving Void",
-  "description": "Makes the void hate you a little less (and vice-versa).",
+  "name": "Less Forgiving Void",
+  "description": "Makes the void hate you a little more than Forgiving Void (and vice-versa).",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",
   "updateUrl": "",
-  "authorList": ["BlayTheNinth"],
-  "credits": "BlayTheNinth",
+  "authorList": ["BlayTheNinth","The_Fireplace"],
+  "credits": "BlayTheNinth, The_Fireplace",
   "logoFile": "",
   "screenshots": []
 }
