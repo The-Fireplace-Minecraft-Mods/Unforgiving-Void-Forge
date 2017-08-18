@@ -21,6 +21,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.File;
 import java.util.Random;
@@ -33,7 +34,26 @@ public class LessForgivingVoid {
 
 	@SubscribeEvent
 	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START) {
+		boolean doTeleport = false;
+		if(event.side == Side.SERVER && event.phase == TickEvent.Phase.START)
+			for(String dimension : ModConfig.dimWhitelist){
+				try{
+					if(event.player.getEntityWorld().provider.getDimension() == Integer.parseInt(dimension)) {
+						doTeleport = true;
+						break;
+					}
+				}catch(NumberFormatException e){
+					if(dimension.equals("*")){
+						doTeleport = true;
+						break;
+					}else if(event.player.getEntityWorld().provider.getDimensionType().getName().equals(dimension)){
+						doTeleport = true;
+						break;
+					}
+				}
+			}
+
+		if(doTeleport) {
 			if(event.player.getPosition().getY() < ModConfig.triggerAtY) {
 				event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
 				Random rand = new Random();
@@ -85,18 +105,6 @@ public class LessForgivingVoid {
 		}
 	}
 
-	@Mod.EventHandler
-	public void preInit(FMLPreInitializationEvent event){
-		if(Loader.isModLoaded("forgivingvoid")) {//stop loading, either this mod won't work, or Forgiving Void won't. Either way, users need to pick which one they want to use.
-			HashMultimap<ModContainer, File> map = HashMultimap.create();
-			ModContainer thisContainer = Loader.instance().getIndexedModList().get(MOD_ID);
-			ModContainer thatContainer = Loader.instance().getIndexedModList().get("forgivingvoid");
-			map.put(thisContainer, thisContainer.getSource());
-			map.put(thatContainer, thatContainer.getSource());
-			throw new DuplicateModsFoundException(map);
-		}
-	}
-
 	@Config(modid = MOD_ID)
 	public static class ModConfig {
 		@Config.Comment("The y level at which Less Forgiving Void should send the player to the Nether.")
@@ -116,5 +124,8 @@ public class LessForgivingVoid {
 		@Config.Comment("The base offset from which the player will spawn from after falling through the void. This is not going to be the exact offset. Height is random.")
 		@Config.RangeInt(min = 128, max = 8192)
 		public static int baseDistanceOffset = 512;
+
+		@Config.Comment("The dimensions the mod is enabled in. Include a * to make the mod work in all dimensions. This can use dimension name or ID Number")
+		public static String[] dimWhitelist = new String[]{"*"};
 	}
 }

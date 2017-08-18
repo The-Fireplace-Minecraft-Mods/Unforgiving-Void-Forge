@@ -103,9 +103,6 @@ curseforge {
 	addGameVersion 'Java 7'
     mainArtifact(jar) {
         displayName = jar.archiveName.replace(".jar", "")
-		relations{
-			incompatible 'forgiving-void'
-		}
     }
     addArtifact(sourceJar) {
         displayName = sourceJar.archiveName.replace(".jar", "")
