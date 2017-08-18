@@ -13,15 +13,13 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.fml.common.DuplicateModsFoundException;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.common.*;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.util.Random;
@@ -81,10 +79,9 @@ public class LessForgivingVoid {
 
 					if(ModConfig.dropObsidian)
 						event.player.world.spawnEntity(new EntityItem(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10)));
-				}else{
-					event.player.setPositionAndUpdate(event.player.getPosition().getX()-ModConfig.baseDistanceOffset *16+rand.nextInt(ModConfig.baseDistanceOffset *32), rand.nextInt(ModConfig.baseDistanceOffset)+ModConfig.baseDistanceOffset /2, event.player.getPosition().getZ()-ModConfig.baseDistanceOffset *16+rand.nextInt(ModConfig.baseDistanceOffset *32));
-				}
-				event.player.getEntityData().setBoolean("ForgivingVoidNoFallDamage", true);
+					event.player.getEntityData().setBoolean("ForgivingVoidNoFallDamage", true);
+				}else if(!event.player.world.isRemote && !event.player.isDead)
+					FMLLog.log(Level.WARN, "Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will die. If this happens, please report it.");
 			}
 		}
 	}
