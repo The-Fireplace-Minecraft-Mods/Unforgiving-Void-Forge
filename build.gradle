@@ -24,7 +24,7 @@ apply plugin: 'net.cazzar.gradle.modsio'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-def BUILD_NUMBER = "0"
+def BUILD_NUMBER = "1"
 
 allprojects {
     sourceCompatibility = 1.7
@@ -119,7 +119,7 @@ modsIO {
     key = project.hasProperty("modsioApiKey")? project.modsioApiKey : "empty"
     project{
 		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
-		modid = "0000"
+		modid = "1272"
 		minecraft = "1.12.1"
 		try{changelog = file('changelog.txt').text}catch(Exception e){changelog=""}
 		tag = ""
