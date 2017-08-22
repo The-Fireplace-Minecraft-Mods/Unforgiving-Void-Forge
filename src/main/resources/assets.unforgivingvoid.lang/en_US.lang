@@ -1,0 +1,12 @@
+trigger_at_y=Trigger At Y
+trigger_at_y.tooltip=The y level at which Unforgiving Void should send the player to the Nether.
+damage_on_fall=Damage On Fall
+damage_on_fall.tooltip=The amount of damage applied to the player when they land.
+prevent_death=Prevent Falling Death
+prevent_death.tooltip=Prevent death by fall damage when you fall to the Nether (limits damage to leave at least 0.5 hearts)
+drop_obsidian=Drop Obsidian
+drop_obsidian.tooltip=Drop obsidian for the player when they appear in the Nether
+base_distance_offset=Base Distance Offset
+base_distance_offset.tooltip=The base offset from which the player will spawn from after falling through the void. This is not going to be the exact offset. Height is random.
+dimension_list=Dimension List
+dimension_list.tooltip=This is the Dimension White/Blacklist. If it contains *, it is a whitelist. Otherwise, it is a blacklist.

@@ -4,8 +4,8 @@ variables:
   CACHE_DIR: "$CI_PROJECT_DIR/build"
   CACHE_DIR2: "$CI_PROJECT_DIR/.gradle"
   
-  ORIG_ARTIFACTS: "$CI_PROJECT_DIR/build/libs/LessForgivingVoid-*.jar"
-  ARTIFACTS: "$CI_PROJECT_DIR/LessForgivingVoid-*.jar"
+  ORIG_ARTIFACTS: "$CI_PROJECT_DIR/build/libs/UnforgivingVoid-*.jar"
+  ARTIFACTS: "$CI_PROJECT_DIR/UnforgivingVoid-*.jar"
 
 cache:
  paths:
@@ -25,7 +25,7 @@ deploy:
   - cp $ORIG_ARTIFACTS .
   when: manual
   artifacts:
-    name: "LessForgivingVoid-$(cat $CACHE_DIR/.version)"
+    name: "UnforgivingVoid-$(cat $CACHE_DIR/.version)"
     paths:
     - $ARTIFACTS
     
@@ -37,6 +37,6 @@ deployMaven:
   - cp $ORIG_ARTIFACTS .
   when: manual
   artifacts:
-    name: "LessForgivingVoid-$(cat $CACHE_DIR/.version)"
+    name: "UnforgivingVoid-$(cat $CACHE_DIR/.version)"
     paths:
     - $ARTIFACTS

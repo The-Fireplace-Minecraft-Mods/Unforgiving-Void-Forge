@@ -24,22 +24,20 @@ apply plugin: 'net.cazzar.gradle.modsio'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
 
-def BUILD_NUMBER = "1"
-
 allprojects {
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 }
 
-version = major_version + "." + minor_version + "." + BUILD_NUMBER
-group = "the_fireplace.lessforgivingvoid"
-archivesBaseName = mod_name
+version = "1.0.2"
+group = "the_fireplace.unforgivingvoid"
+archivesBaseName = "UnforgivingVoid"
 
 minecraft {
-    version = minecraft_version + "-" + forge_version
+    version = "1.11.2-13.20.0.2226"
     runDir = "run"
     replace '${version}', project.version
-    mappings = mappings_version
+    mappings = "stable_32"
 	
 	clientRunArgs += "--uuid=0b1ec5ad-cb2a-43b7-995d-889320eb2e5b --username=The_Fireplace"
 }
@@ -100,7 +98,6 @@ curseforge {
     addGameVersion '1.11'
     addGameVersion '1.10.2'
 	addGameVersion 'Java 8'
-	addGameVersion 'Java 7'
     mainArtifact(jar) {
         displayName = jar.archiveName.replace(".jar", "")
     }
@@ -139,16 +136,16 @@ uploadArchives {
                     project {
                         name project.archivesBaseName
                         packaging "jar"
-                        description "LessForgivingVoid"
-                        url "https://github.com/The-Fireplace/LessForgivingVoid"
+                        description "Unforgiving-Void"
+                        url "https://github.com/The-Fireplace/Unforgiving-Void"
                         issueManagement {
                             system "github"
-                            url "https://github.com/The-Fireplace/LessForgivingVoid/issues"
+                            url "https://github.com/The-Fireplace/Unforgiving-Void/issues"
                         }
                         licenses {
                             license {
                                 name "License"
-                                url "https://github.com/The-Fireplace/LessForgivingVoid/blob/master/LICENSE"
+                                url "https://github.com/The-Fireplace/Unforgiving-Void/blob/master/LICENSE"
                                 distribution "repo"
                             }
                         }

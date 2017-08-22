@@ -1,15 +1,15 @@
 [
 {
-  "modid": "lessforgivingvoid",
-  "name": "Less Forgiving Void",
-  "description": "Makes the void hate you a little more than Forgiving Void (and vice-versa).",
+  "modid": "unforgivingvoid",
+  "name": "Unforgiving Void",
+  "description": "Sends you to the Nether when you fall in the void.",
   "version": "${version}",
   "mcversion": "",
-  "url": "",
-  "updateUrl": "",
+  "url": "https://minecraft.curseforge.com/projects/unforgiving-void",
+  "updateUrl": "https://minecraft.curseforge.com/projects/unforgiving-void",
   "authorList": ["The_Fireplace"],
   "credits": "The_Fireplace, BlayTheNinth",
-  "logoFile": "",
+  "logoFile": "lgog.png",
   "screenshots": []
 }
 ]

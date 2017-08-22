@@ -1,1 +1,4 @@
-Released for Minecraft 1.10.2+
+Renamed mod to "Unforgiving Void"
+Added the logo
+Updated how the config works
+Added a Config GUI
