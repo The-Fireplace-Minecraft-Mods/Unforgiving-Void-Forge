@@ -10,3 +10,5 @@ base_distance_offset=Base Distance Offset
 base_distance_offset.tooltip=The base offset from which the player will spawn from after falling through the void. This is not going to be the exact offset. Height is random.
 dimension_list=Dimension List
 dimension_list.tooltip=This is the Dimension White/Blacklist. If it contains *, it is a whitelist. Otherwise, it is a blacklist.
+save_from_lava=Save From Lava
+save_from_lava.tooltip=Save the player from Lava when they fall into the Nether

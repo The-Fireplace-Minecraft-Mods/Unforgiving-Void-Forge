@@ -1,5 +1,6 @@
 package the_fireplace.unforgivingvoid;
 
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockPortal;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,21 +13,31 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Random;
 
-@Mod(modid = UnforgivingVoid.MODID, name = UnforgivingVoid.MODNAME, acceptedMinecraftVersions = "[1.10.2,)", acceptableRemoteVersions = "*", updateJSON = "https://bitbucket.org/The_Fireplace/minecraft-mod-updates/raw/master/lfv.json")
+@Mod(modid = UnforgivingVoid.MODID, name = UnforgivingVoid.MODNAME, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", updateJSON = "https://bitbucket.org/The_Fireplace/minecraft-mod-updates/raw/master/lfv.json")
 @Mod.EventBusSubscriber
 public class UnforgivingVoid {
 
 	public static final String MODID = "unforgivingvoid";
 	public static final String MODNAME = "Unforgiving Void";
+
+	private static Logger LOGGER = FMLLog.log;
+
+	@Mod.EventHandler
+	public void preInit(FMLPreInitializationEvent event) {
+		LOGGER = event.getModLog();
+	}
 
 	@SubscribeEvent
 	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
@@ -45,15 +56,15 @@ public class UnforgivingVoid {
 					}
 				}
 
-		if(doTeleport && event.player.getPosition().getY() < ConfigValues.triggerAtY) {
+		if(doTeleport && event.player.getPosition().getY() <= ConfigValues.triggerAtY) {
 			event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
 			Random rand = new Random();
-			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8- ConfigValues.baseDistanceOffset *2+rand.nextInt(ConfigValues.baseDistanceOffset *4), rand.nextInt(100)+16, event.player.getPosition().getZ()/8- ConfigValues.baseDistanceOffset *2+rand.nextInt(ConfigValues.baseDistanceOffset *4));
+			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2));
 			event.player.setPortal(spawnPos);
-			if(event.player.changeDimension(-1) != null) {
+			if(event.player.changeDimension(-1) != null && event.player.dimension == -1) {
 				int expandMult = 1;
 				while(event.player.world.getBlockState(spawnPos).isNormalCube()){
-					spawnPos = new BlockPos(event.player.getPosition().getX()/8- ConfigValues.baseDistanceOffset *2*expandMult+rand.nextInt(ConfigValues.baseDistanceOffset *4*expandMult), rand.nextInt(100)+16, event.player.getPosition().getZ()/8- ConfigValues.baseDistanceOffset *2*expandMult+rand.nextInt(ConfigValues.baseDistanceOffset *4*expandMult));
+					spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset * expandMult + rand.nextInt(ConfigValues.baseDistanceOffset * 2 * expandMult), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset * expandMult + rand.nextInt(ConfigValues.baseDistanceOffset * 2 * expandMult));
 					event.player.setPortal(spawnPos);
 					expandMult++;
 				}
@@ -72,9 +83,26 @@ public class UnforgivingVoid {
 
 				if(ConfigValues.dropObsidian)
 					event.player.world.spawnEntity(new EntityItem(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10)));
-				event.player.getEntityData().setBoolean("UnforgivingVoidNoFallDamage", true);
-			}else if(!event.player.world.isRemote && !event.player.isDead)
-				FMLLog.log(Level.WARN, "Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will die. If this happens, please report it.");
+				if(!event.player.isCreative() && !event.player.isSpectator())
+					event.player.getEntityData().setBoolean("UnforgivingVoidNoFallDamage", true);
+
+				if(ConfigValues.saveFromLava) {
+					while (event.player.world.getBlockState(spawnPos).getBlock() instanceof BlockAir)
+						spawnPos = spawnPos.down();
+					if (event.player.world.getBlockState(spawnPos).getBlock() == Blocks.LAVA || event.player.world.getBlockState(spawnPos).getBlock() == Blocks.FLOWING_LAVA) {
+						event.player.getEntityWorld().setBlockState(spawnPos, Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.north(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.south(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.east(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.west(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.north().east(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.north().west(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.south().east(), Blocks.OBSIDIAN.getDefaultState());
+						event.player.getEntityWorld().setBlockState(spawnPos.south().west(), Blocks.OBSIDIAN.getDefaultState());
+					}
+				}
+			} else if(!event.player.world.isRemote && !event.player.isDead)
+				LOGGER.warn("Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will die. If this happens, please report it.");
 		}
 	}
 
@@ -83,9 +111,8 @@ public class UnforgivingVoid {
 		if(event.getEntity() instanceof EntityPlayer) {
 			if(event.getEntity().getEntityData().getBoolean("UnforgivingVoidNoFallDamage")) {
 				float damage = ConfigValues.damageOnFall;
-				if(ConfigValues.preventDeath && event.getEntityLiving().getHealth() - damage <= 0) {
+				if(ConfigValues.preventDeath && event.getEntityLiving().getHealth() - damage <= 0)
 					damage = event.getEntityLiving().getHealth() - 1f;
-				}
 				event.getEntity().attackEntityFrom(DamageSource.FALL, damage);
 				event.setDamageMultiplier(0f);
 				event.setCanceled(true);
@@ -114,12 +141,16 @@ public class UnforgivingVoid {
 		@Config.LangKey("drop_obsidian")
 		public static boolean dropObsidian = true;
 
+		@Config.Comment("Save the player from lava when they appear in the Nether")
+		@Config.LangKey("save_from_lava")
+		public static boolean saveFromLava = false;
+
 		@Config.Comment("The base offset from which the player will spawn from after falling through the void. This is not going to be the exact offset. Height is random.")
 		@Config.RangeInt(min = 128, max = 8192)
 		@Config.LangKey("base_distance_offset")
 		public static int baseDistanceOffset = 512;
 
-		@Config.Comment("This is the Dimension Black/Whitelist. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
+		@Config.Comment("This is the Dimension Filter. If it contains *, it is a blacklist. Otherwise, it is a whitelist.")
 		@Config.LangKey("dimension_list")
 		public static String[] dimension_list = new String[]{"*"};
 	}
