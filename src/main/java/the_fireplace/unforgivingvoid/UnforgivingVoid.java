@@ -47,9 +47,8 @@ import java.util.Objects;
 import java.util.Random;
 
 @SuppressWarnings("WeakerAccess")
-@Mod(UnforgivingVoid.MODID)
-@Mod.EventBusSubscriber
 @MethodsReturnNonnullByDefault
+@Mod(UnforgivingVoid.MODID)
 public class UnforgivingVoid {
 	public static final String MODID = "unforgivingvoid";
 	private static Logger LOGGER = LogManager.getLogger(MODID);
@@ -60,7 +59,6 @@ public class UnforgivingVoid {
 
 	public UnforgivingVoid() {
 		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, cfg.SERVER_SPEC);
-		MinecraftForge.EVENT_BUS.register(this);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverConfig);
 	}
@@ -68,6 +66,7 @@ public class UnforgivingVoid {
 	@SuppressWarnings("unused")
 	public void preInit(FMLCommonSetupEvent event) {
 		CapabilityManager.INSTANCE.register(UnforgivingVoidCapability.class, new UnforgivingVoidCapability.Storage(), UnforgivingVoidCapability.Default::new);
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	public void serverConfig(ModConfig.ModConfigEvent event) {
@@ -76,7 +75,7 @@ public class UnforgivingVoid {
 	}
 
 	@SubscribeEvent
-	public static void attachPlayerCaps(AttachCapabilitiesEvent<Entity> e){
+	public void attachPlayerCaps(AttachCapabilitiesEvent<Entity> e){
 		if(e.getObject() instanceof EntityPlayer) {
 			//noinspection ConstantConditions
 			assert UNFORGIVING_VOID_CAP != null;
@@ -93,18 +92,17 @@ public class UnforgivingVoid {
 					UNFORGIVING_VOID_CAP.getStorage().readNBT(UNFORGIVING_VOID_CAP, inst, null, nbt);
 				}
 
-				@SuppressWarnings("Duplicates")
 				@Override
 				public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
 					//noinspection unchecked
-					return capability == UNFORGIVING_VOID_CAP ? LazyOptional.of(() -> (T) inst) : null;
+					return capability instanceof UnforgivingVoidCapability ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
 				}
 			});
 		}
 	}
 
 	@SubscribeEvent
-	public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+	public void onPlayerTick(TickEvent.PlayerTickEvent event) {
 		boolean doTeleport = cfg.dimensionFilter.contains("*");
 		if(event.side == LogicalSide.SERVER && event.phase == TickEvent.Phase.START)
 			for (String dim : cfg.dimensionFilter)
@@ -176,7 +174,7 @@ public class UnforgivingVoid {
 	}
 
 	@SubscribeEvent
-	public static void onPlayerFall(LivingFallEvent event) {
+	public void onPlayerFall(LivingFallEvent event) {
 		if(event.getEntity() instanceof EntityPlayer) {
 			if(getUnforgivingVoidCap((EntityPlayer) event.getEntity()).getFallingFromTravel()) {
 				float damage = cfg.damageOnFall;
