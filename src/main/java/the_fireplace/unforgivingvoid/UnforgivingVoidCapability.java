@@ -1,6 +1,6 @@
 package the_fireplace.unforgivingvoid;
 
-import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.INBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
@@ -35,12 +35,12 @@ public interface UnforgivingVoidCapability {
 
         @Nullable
         @Override
-        public NBTBase writeNBT(Capability<UnforgivingVoidCapability> capability, UnforgivingVoidCapability instance, EnumFacing side) {
+        public INBTBase writeNBT(Capability<UnforgivingVoidCapability> capability, UnforgivingVoidCapability instance, EnumFacing side) {
             return new NBTTagByte(instance.getFallingFromTravel() ? (byte) 1 : 0);
         }
 
         @Override
-        public void readNBT(Capability<UnforgivingVoidCapability> capability, UnforgivingVoidCapability instance, EnumFacing side, NBTBase nbt) {
+        public void readNBT(Capability<UnforgivingVoidCapability> capability, UnforgivingVoidCapability instance, EnumFacing side, INBTBase nbt) {
             if (nbt instanceof NBTTagByte)
                 instance.setFallingFromTravel(((NBTTagByte) nbt).getByte() == 1);
         }

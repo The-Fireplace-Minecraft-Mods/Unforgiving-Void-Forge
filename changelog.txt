@@ -1,6 +1,1 @@
-Renamed mod to "Unforgiving Void"
-Updated how the dimension list in the config works
-Added a Config GUI
-Added a config option to save the player from falling into Lava when they fall into the Nether
-Internal changes to prepare for the 1.13.2 update
-Added en_UD.lang
+Updated to 1.13.2

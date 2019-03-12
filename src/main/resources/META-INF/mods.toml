@@ -1,0 +1,27 @@
+modLoader="javafml"
+loaderVersion="[24,)"
+issueTrackerURL="https://github.com/The-Fireplace-Minecraft-Mods/Unforgiving-Void/issues"
+displayURL="https://minecraft.curseforge.com/projects/unforgiving-void"
+credits="Thanks to BlayTheNinth for making Forgiving Void, which this mod was based off of."
+authors="The_Fireplace"
+
+[[mods]]
+modId="unforgivingvoid"
+version="${file.jarVersion}"
+displayName="Unforgiving Void"
+description='''
+Sends you to the Nether when you fall in the void.
+'''
+
+[[dependencies.unforgivingvoid]]
+    modId="forge"
+    mandatory=true
+    versionRange="[25,)"
+    ordering="NONE"
+    side="SERVER"
+[[dependencies.unforgivingvoid]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.13.2,1.14)"
+    ordering="NONE"
+    side="SERVER"
