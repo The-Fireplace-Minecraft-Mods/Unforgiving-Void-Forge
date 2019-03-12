@@ -2,16 +2,25 @@ package the_fireplace.unforgivingvoid;
 
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockPortal;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityInject;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.config.Config;
+import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.common.*;
@@ -23,6 +32,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Random;
 
 @Mod(modid = UnforgivingVoid.MODID, name = UnforgivingVoid.MODNAME, acceptedMinecraftVersions = "[1.12,1.13)", acceptableRemoteVersions = "*", updateJSON = "https://bitbucket.org/The_Fireplace/minecraft-mod-updates/raw/master/lfv.json")
@@ -34,9 +45,48 @@ public class UnforgivingVoid {
 
 	private static Logger LOGGER = FMLLog.log;
 
+	@CapabilityInject(UnforgivingVoidCapability.class)
+	public static final Capability<UnforgivingVoidCapability> UNFORGIVING_VOID_CAP = null;
+	private static final ResourceLocation unforgiving_void_cap_res = new ResourceLocation(MODID, "unforgiving_void_cap");
+
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		LOGGER = event.getModLog();
+		CapabilityManager.INSTANCE.register(UnforgivingVoidCapability.class, new UnforgivingVoidCapability.Storage(), UnforgivingVoidCapability.Default::new);
+	}
+
+	@SubscribeEvent
+	public static void attachPlayerCaps(AttachCapabilitiesEvent<Entity> e){
+		if(e.getObject() instanceof EntityPlayer) {
+			//noinspection ConstantConditions
+			assert UNFORGIVING_VOID_CAP != null;
+			e.addCapability(unforgiving_void_cap_res, new ICapabilitySerializable() {
+				UnforgivingVoidCapability inst = UNFORGIVING_VOID_CAP.getDefaultInstance();
+
+				@Override
+				public NBTBase serializeNBT() {
+					return UNFORGIVING_VOID_CAP.getStorage().writeNBT(UNFORGIVING_VOID_CAP, inst, null);
+				}
+
+				@Override
+				public void deserializeNBT(NBTBase nbt) {
+					UNFORGIVING_VOID_CAP.getStorage().readNBT(UNFORGIVING_VOID_CAP, inst, null, nbt);
+				}
+
+				@Override
+				public boolean hasCapability(@Nonnull Capability<?> capability, @Nullable EnumFacing facing) {
+					return capability == UNFORGIVING_VOID_CAP;
+				}
+
+				@SuppressWarnings("Duplicates")
+				@Nullable
+				@Override
+				public <T> T getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+					//noinspection unchecked
+					return capability == UNFORGIVING_VOID_CAP ? (T) inst : null;
+				}
+			});
+		}
 	}
 
 	@SubscribeEvent
@@ -82,9 +132,9 @@ public class UnforgivingVoid {
 				}
 
 				if(ConfigValues.dropObsidian)
-					event.player.world.spawnEntity(new EntityItem(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10)));
+					event.player.world.spawnEntity(new EntityItem(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10+rand.nextInt(4))));
 				if(!event.player.isCreative() && !event.player.isSpectator())
-					event.player.getEntityData().setBoolean("UnforgivingVoidNoFallDamage", true);
+					getUnforgivingVoidCap(event.player).setFallingFromTravel(true);
 
 				if(ConfigValues.saveFromLava) {
 					while (event.player.world.getBlockState(spawnPos).getBlock() instanceof BlockAir)
@@ -106,17 +156,22 @@ public class UnforgivingVoid {
 		}
 	}
 
+	public static UnforgivingVoidCapability getUnforgivingVoidCap(EntityPlayer player) {
+		//noinspection ConstantConditions
+		return player.getCapability(UNFORGIVING_VOID_CAP, null);
+	}
+
 	@SubscribeEvent
 	public static void onPlayerFall(LivingFallEvent event) {
 		if(event.getEntity() instanceof EntityPlayer) {
-			if(event.getEntity().getEntityData().getBoolean("UnforgivingVoidNoFallDamage")) {
+			if(getUnforgivingVoidCap((EntityPlayer) event.getEntity()).getFallingFromTravel()) {
 				float damage = ConfigValues.damageOnFall;
 				if(ConfigValues.preventDeath && event.getEntityLiving().getHealth() - damage <= 0)
 					damage = event.getEntityLiving().getHealth() - 1f;
 				event.getEntity().attackEntityFrom(DamageSource.FALL, damage);
 				event.setDamageMultiplier(0f);
 				event.setCanceled(true);
-				event.getEntity().getEntityData().setBoolean("UnforgivingVoidNoFallDamage", false);
+				getUnforgivingVoidCap((EntityPlayer) event.getEntity()).setFallingFromTravel(false);
 			}
 		}
 	}
