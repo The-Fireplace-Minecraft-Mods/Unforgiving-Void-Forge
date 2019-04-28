@@ -163,7 +163,7 @@ public class UnforgivingVoid {
 						event.player.getEntityWorld().setBlockState(spawnPos.south().west(), Blocks.OBSIDIAN.getDefaultState());
 					}
 				}
-			} else if(!event.player.world.isRemote && !event.player.removed)
+			} else if(!event.player.world.isRemote && event.player.isAlive())
 				LOGGER.warn("Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will die. If this happens, please report it.");
 		}
 	}
