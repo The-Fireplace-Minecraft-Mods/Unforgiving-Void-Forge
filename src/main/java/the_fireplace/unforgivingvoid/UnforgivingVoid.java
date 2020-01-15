@@ -2,20 +2,20 @@ package the_fireplace.unforgivingvoid;
 
 import com.google.common.collect.Lists;
 import mcp.MethodsReturnNonnullByDefault;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockPortal;
+import net.minecraft.block.AirBlock;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.NetherPortalBlock;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBTBase;
-import net.minecraft.potion.PotionEffect;
+import net.minecraft.nbt.INBT;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraftforge.common.ForgeConfigSpec;
@@ -26,16 +26,15 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.*;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -58,7 +57,7 @@ public class UnforgivingVoid {
 	private static final ResourceLocation unforgiving_void_cap_res = new ResourceLocation(MODID, "unforgiving_void_cap");
 
 	public UnforgivingVoid() {
-		ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, cfg.SERVER_SPEC);
+		ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, cfg.COMMON_SPEC);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::preInit);
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::serverConfig);
 	}
@@ -70,32 +69,32 @@ public class UnforgivingVoid {
 	}
 
 	public void serverConfig(ModConfig.ModConfigEvent event) {
-		if (event.getConfig().getType() == ModConfig.Type.SERVER)
+		if (event.getConfig().getType() == ModConfig.Type.COMMON)
 			cfg.load();
 	}
 
 	@SubscribeEvent
 	public void attachPlayerCaps(AttachCapabilitiesEvent<Entity> e){
-		if(e.getObject() instanceof EntityPlayer) {
+		if(e.getObject() instanceof PlayerEntity) {
 			//noinspection ConstantConditions
 			assert UNFORGIVING_VOID_CAP != null;
 			e.addCapability(unforgiving_void_cap_res, new ICapabilitySerializable() {
 				UnforgivingVoidCapability inst = UNFORGIVING_VOID_CAP.getDefaultInstance();
 
 				@Override
-				public INBTBase serializeNBT() {
+				public INBT serializeNBT() {
 					return UNFORGIVING_VOID_CAP.getStorage().writeNBT(UNFORGIVING_VOID_CAP, inst, null);
 				}
 
 				@Override
-				public void deserializeNBT(INBTBase nbt) {
+				public void deserializeNBT(INBT nbt) {
 					UNFORGIVING_VOID_CAP.getStorage().readNBT(UNFORGIVING_VOID_CAP, inst, null, nbt);
 				}
 
 				@Override
-				public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable EnumFacing facing) {
+				public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> capability, @Nullable Direction facing) {
 					//noinspection unchecked
-					return capability instanceof UnforgivingVoidCapability ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
+					return capability.getName().equals(UnforgivingVoidCapability.class.getCanonicalName()) ? LazyOptional.of(() -> (T) inst) : LazyOptional.empty();
 				}
 			});
 		}
@@ -119,13 +118,13 @@ public class UnforgivingVoid {
 				}
 
 		if(doTeleport && event.player.getPosition().getY() <= cfg.triggerAtY) {
-			event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
+			event.player.addPotionEffect(new EffectInstance(Effects.BLINDNESS, 60, 3));
 			Random rand = new Random();
 			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8 - cfg.baseDistanceOffset + rand.nextInt(cfg.baseDistanceOffset * 2), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - cfg.baseDistanceOffset + rand.nextInt(cfg.baseDistanceOffset * 2));
 			event.player.setPortal(spawnPos);
-			if(event.player.changeDimension(DimensionType.NETHER, ServerLifecycleHooks.getCurrentServer().getWorld(DimensionType.NETHER).getDefaultTeleporter()) != null && event.player.dimension.equals(DimensionType.NETHER)) {
+			if(event.player.changeDimension(DimensionType.THE_NETHER) != null && event.player.dimension.equals(DimensionType.THE_NETHER)) {
 				int expandMult = 1;
-				while(event.player.world.getBlockState(spawnPos).isNormalCube()){
+				while(event.player.world.getBlockState(spawnPos).isNormalCube(event.player.world, spawnPos)){
 					spawnPos = new BlockPos(event.player.getPosition().getX()/8 - cfg.baseDistanceOffset * expandMult + rand.nextInt(cfg.baseDistanceOffset * 2 * expandMult), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - cfg.baseDistanceOffset * expandMult + rand.nextInt(cfg.baseDistanceOffset * 2 * expandMult));
 					event.player.setPortal(spawnPos);
 					expandMult++;
@@ -135,7 +134,7 @@ public class UnforgivingVoid {
 				for(int x=event.player.getPosition().getX()-2;x<=event.player.getPosition().getX()+2;x++){
 					for(int y=event.player.getPosition().getY()-3;y<=event.player.getPosition().getY()+3;y++){
 						for(int z=event.player.getPosition().getZ()-2;z<=event.player.getPosition().getZ()+2;z++){
-							if(event.player.world.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof BlockPortal) {
+							if(event.player.world.getBlockState(new BlockPos(x, y, z)).getBlock() instanceof NetherPortalBlock) {
 								event.player.world.setBlockState(new BlockPos(x, y, z), Blocks.AIR.getDefaultState());
 								event.player.playSound(SoundEvents.BLOCK_GLASS_BREAK, 1.0f, 2.0f);
 							}
@@ -144,12 +143,12 @@ public class UnforgivingVoid {
 				}
 
 				if(cfg.dropObsidian)
-					event.player.world.spawnEntity(new EntityItem(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10+rand.nextInt(4))));
+					event.player.world.addEntity(new ItemEntity(event.player.world, spawnPos.getX(), spawnPos.getY(), spawnPos.getZ(), new ItemStack(Blocks.OBSIDIAN, 10+rand.nextInt(4))));
 				if(!event.player.isCreative() && !event.player.isSpectator())
 					getUnforgivingVoidCap(event.player).setFallingFromTravel(true);
 
 				if(cfg.lavaPlatform) {
-					while (event.player.world.getBlockState(spawnPos).getBlock() instanceof BlockAir)
+					while (event.player.world.getBlockState(spawnPos).getBlock() instanceof AirBlock)
 						spawnPos = spawnPos.down();
 					if (event.player.world.getBlockState(spawnPos).getBlock() == Blocks.LAVA) {
 						event.player.getEntityWorld().setBlockState(spawnPos, Blocks.OBSIDIAN.getDefaultState());
@@ -168,33 +167,33 @@ public class UnforgivingVoid {
 		}
 	}
 
-	public static UnforgivingVoidCapability getUnforgivingVoidCap(EntityPlayer player) {
+	public static UnforgivingVoidCapability getUnforgivingVoidCap(PlayerEntity player) {
 		//noinspection ConstantConditions
 		return player.getCapability(UNFORGIVING_VOID_CAP).orElseThrow(() -> new IllegalStateException("Unforgiving Void Capability is not present for a player!"));
 	}
 
 	@SubscribeEvent
 	public void onPlayerFall(LivingFallEvent event) {
-		if(event.getEntity() instanceof EntityPlayer) {
-			if(getUnforgivingVoidCap((EntityPlayer) event.getEntity()).getFallingFromTravel()) {
+		if(event.getEntityLiving() instanceof PlayerEntity && event.getEntityLiving().isServerWorld()) {
+			if(getUnforgivingVoidCap((PlayerEntity) event.getEntityLiving()).getFallingFromTravel()) {
 				float damage = cfg.damageOnFall;
 				if(cfg.preventFallingDeath && event.getEntityLiving().getHealth() - damage <= 0)
 					damage = event.getEntityLiving().getHealth() - 1f;
 				event.getEntity().attackEntityFrom(DamageSource.FALL, damage);
 				event.setDamageMultiplier(0f);
 				event.setCanceled(true);
-				getUnforgivingVoidCap((EntityPlayer) event.getEntity()).setFallingFromTravel(false);
+				getUnforgivingVoidCap((PlayerEntity) event.getEntity()).setFallingFromTravel(false);
 			}
 		}
 	}
 
 	public static class cfg {
-		public static final ServerConfig SERVER;
-		public static final ForgeConfigSpec SERVER_SPEC;
+		public static final ServerConfig COMMON;
+		public static final ForgeConfigSpec COMMON_SPEC;
 		static {
 			final Pair<ServerConfig, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(ServerConfig::new);
-			SERVER_SPEC = specPair.getRight();
-			SERVER = specPair.getLeft();
+			COMMON_SPEC = specPair.getRight();
+			COMMON = specPair.getLeft();
 		}
 
 		public static int triggerAtY;
@@ -206,13 +205,13 @@ public class UnforgivingVoid {
 		public static List<String> dimensionFilter;
 
 		public static void load() {
-			triggerAtY = SERVER.triggerAtY.get();
-			damageOnFall = SERVER.damageOnFall.get();
-			preventFallingDeath = SERVER.preventFallingDeath.get();
-			dropObsidian = SERVER.dropObsidian.get();
-			lavaPlatform = SERVER.lavaPlatform.get();
-			baseDistanceOffset = SERVER.baseDistanceOffset.get();
-			dimensionFilter = SERVER.dimensionFilter.get();
+			triggerAtY = COMMON.triggerAtY.get();
+			damageOnFall = COMMON.damageOnFall.get();
+			preventFallingDeath = COMMON.preventFallingDeath.get();
+			dropObsidian = COMMON.dropObsidian.get();
+			lavaPlatform = COMMON.lavaPlatform.get();
+			baseDistanceOffset = COMMON.baseDistanceOffset.get();
+			dimensionFilter = COMMON.dimensionFilter.get();
 		}
 
 		public static class ServerConfig {
