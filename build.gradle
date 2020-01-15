@@ -29,9 +29,9 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "1.0.3"
+version = "1.0.4"
 group = "the_fireplace.unforgivingvoid"
-archivesBaseName = "UnforgivingVoid-1.14.4"
+archivesBaseName = "UnforgivingVoid-1.15.1"
 
 minecraft {
     mappings channel: 'snapshot', version: '20191124-1.14.3'
@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-	minecraft 'net.minecraftforge:forge:1.14.4-28.1.114'
+	minecraft 'net.minecraftforge:forge:1.15.1-30.0.39'
 }
 
 jar {
@@ -91,6 +91,7 @@ curseforge {
     id = '274863'
     changelog = file('changelog.txt')
     releaseType = 'release'
+    addGameVersion '1.15.1'
     addGameVersion '1.14.4'
 	addGameVersion 'Java 8'
     mainArtifact(jar) {
@@ -108,7 +109,7 @@ modsIO {
     project{
 		artifact = new File(jar.destinationDir, archivesBaseName+"-"+version+".jar")
 		modid = "1272"
-		minecraft = "1.14.4"
+		minecraft = "1.15.1"
 		try{changelog = file('changelog.txt').text}catch(Exception e){changelog=""}
 		tag = ""
 		current = true
