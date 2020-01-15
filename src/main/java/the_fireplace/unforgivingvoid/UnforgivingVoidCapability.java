@@ -36,7 +36,7 @@ public interface UnforgivingVoidCapability {
         @Nullable
         @Override
         public INBT writeNBT(Capability<UnforgivingVoidCapability> capability, UnforgivingVoidCapability instance, Direction side) {
-            return new ByteNBT(instance.getFallingFromTravel() ? (byte) 1 : 0);
+            return instance.getFallingFromTravel() ? ByteNBT.field_229670_c_ : ByteNBT.field_229669_b_;
         }
 
         @Override
