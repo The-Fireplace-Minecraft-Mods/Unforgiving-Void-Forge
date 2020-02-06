@@ -6,9 +6,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -105,7 +107,7 @@ public class UnforgivingVoid {
 				}
 
 		if(doTeleport && event.player.getPosition().getY() <= ConfigValues.triggerAtY) {
-			//event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
+			event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
 			Random rand = new Random();
 			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2));
 			if(event.player.changeDimension(-1, new UVTeleporter(spawnPos)) != null && event.player.dimension == -1) {
