@@ -6,11 +6,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.MobEffects;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -22,14 +20,13 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
-import net.minecraftforge.fluids.BlockFluidBase;
-import net.minecraftforge.fml.common.*;
+import net.minecraftforge.fml.common.FMLLog;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nonnull;
@@ -111,8 +108,7 @@ public class UnforgivingVoid {
 			//event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
 			Random rand = new Random();
 			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2));
-			event.player.setPortal(spawnPos);
-			if(event.player.changeDimension(-1) != null && event.player.dimension == -1) {
+			if(event.player.changeDimension(-1, new UVTeleporter(spawnPos)) != null && event.player.dimension == -1) {
 				int expandMult = 1;
 				while(event.player.world.getBlockState(spawnPos).isNormalCube()){
 					spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset * expandMult + rand.nextInt(ConfigValues.baseDistanceOffset * 2 * expandMult), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset * expandMult + rand.nextInt(ConfigValues.baseDistanceOffset * 2 * expandMult));
