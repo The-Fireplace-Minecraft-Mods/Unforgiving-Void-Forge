@@ -5,10 +5,10 @@
   "description": "Sends you to the Nether when you fall in the void.",
   "version": "${version}",
   "mcversion": "",
-  "url": "https://minecraft.curseforge.com/projects/unforgiving-void",
-  "updateUrl": "https://minecraft.curseforge.com/projects/unforgiving-void",
+  "url": "https://www.curseforge.com/minecraft/mc-mods/unforgiving-void",
+  "updateUrl": "https://www.curseforge.com/minecraft/mc-mods/unforgiving-void",
   "authorList": ["The_Fireplace"],
-  "credits": "BlayTheNinth for making Forgiving Void, which this idea is based off of.",
+  "credits": "",
   "logoFile": "",
   "screenshots": []
 }

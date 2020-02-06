@@ -60,6 +60,7 @@ public class UnforgivingVoid {
 		if(e.getObject() instanceof EntityPlayer) {
 			//noinspection ConstantConditions
 			assert UNFORGIVING_VOID_CAP != null;
+			//noinspection rawtypes
 			e.addCapability(unforgiving_void_cap_res, new ICapabilitySerializable() {
 				UnforgivingVoidCapability inst = UNFORGIVING_VOID_CAP.getDefaultInstance();
 
@@ -99,7 +100,7 @@ public class UnforgivingVoid {
 						doTeleport = !doTeleport;
 						break;
 					}
-				}catch(NumberFormatException e){
+				}catch(NumberFormatException e) {
 					if(!dim.equals("*") && event.player.getEntityWorld().provider.getDimensionType().getName().toLowerCase().equals(dim.toLowerCase())){
 						doTeleport = !doTeleport;
 						break;
@@ -107,7 +108,7 @@ public class UnforgivingVoid {
 				}
 
 		if(doTeleport && event.player.getPosition().getY() <= ConfigValues.triggerAtY) {
-			event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
+			//event.player.addPotionEffect(new PotionEffect(MobEffects.BLINDNESS, 60, 3));
 			Random rand = new Random();
 			BlockPos spawnPos = new BlockPos(event.player.getPosition().getX()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2), rand.nextInt(100)+16, event.player.getPosition().getZ()/8 - ConfigValues.baseDistanceOffset + rand.nextInt(ConfigValues.baseDistanceOffset * 2));
 			event.player.setPortal(spawnPos);
@@ -151,8 +152,8 @@ public class UnforgivingVoid {
 						event.player.getEntityWorld().setBlockState(spawnPos.south().west(), Blocks.OBSIDIAN.getDefaultState());
 					}
 				}
-			} else if(!event.player.world.isRemote && !event.player.isDead)
-				LOGGER.warn("Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will die. If this happens, please report it.");
+			} else if(!event.player.world.isRemote && event.player.isEntityAlive())
+				LOGGER.warn("Error: Unable to teleport player to the Nether from the void. Unfortunately, the player will probably die. If this happens, please report it.");
 		}
 	}
 
@@ -163,7 +164,7 @@ public class UnforgivingVoid {
 
 	@SubscribeEvent
 	public static void onPlayerFall(LivingFallEvent event) {
-		if(event.getEntity() instanceof EntityPlayer) {
+		if(event.getEntity() instanceof EntityPlayer && !event.getEntity().getEntityWorld().isRemote) {
 			if(getUnforgivingVoidCap((EntityPlayer) event.getEntity()).getFallingFromTravel()) {
 				float damage = ConfigValues.damageOnFall;
 				if(ConfigValues.preventDeath && event.getEntityLiving().getHealth() - damage <= 0)

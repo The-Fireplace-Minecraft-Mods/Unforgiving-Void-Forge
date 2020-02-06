@@ -17,7 +17,7 @@ buildscript {
 }
 
 plugins {
-    id "com.matthewprenger.cursegradle" version "1.2.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'net.cazzar.gradle.modsio'
@@ -27,7 +27,7 @@ allprojects {
     targetCompatibility = 1.8
 }
 
-version = "1.0.2"
+version = "1.0.5"
 group = "the_fireplace.unforgivingvoid"
 archivesBaseName = "UnforgivingVoid-1.12.2"
 
